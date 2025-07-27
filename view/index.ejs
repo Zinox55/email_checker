@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérification Emails</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div class="max-w-xl mx-auto mt-12 p-8 bg-white rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+      Vérification & Nettoyage d'Emails
+    </h1>
+
+    <!-- Affichage des messages -->
+    <% if (typeof msg !== 'undefined') { %>
+      <p class="mb-4 text-center text-sm text-green-700 bg-green-100 p-2 rounded">
+        <%= msg %>
+      </p>
+    <% } %>
+
+    <!-- Formulaire d'upload -->
+    <form action="/uploads" method="POST" enctype="multipart/form-data"
+          class="flex flex-col items-center gap-4">
+      <input type="file" name="myfile" required
+             class="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100" />
+      <button type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+        Vérifier et Nettoyer
+      </button>
+    </form>
+
+    <!-- Résultats -->
+    <% if (typeof Valid_emails !== 'undefined' && Valid_emails.length > 0) { %>
+      <div class="mt-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Emails valides :</h2>
+        <ul class="list-disc list-inside text-gray-600 max-h-60 overflow-y-auto border p-2 rounded">
+          <% Valid_emails.forEach(email => { %>
+            <li><%= email %></li>
+          <% }) %>
+        </ul>
+        <!-- Lien de téléchargement -->
+        <a href="<%= downloadLink %>" download
+           class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
+          Télécharger le fichier nettoyé
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+</body>
+</html>
