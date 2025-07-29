@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const ejs = require('ejs');
 const fs = require('fs');
+const axios = require('axios');
 
 // Import fetch compatible Node <18
 
@@ -22,6 +23,9 @@ const upload = multer({ storage }).single('myfile');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'view'));
 app.use(express.static('./public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 
 
 // ---------------------- EMAIL CHECK ----------------------
@@ -29,20 +33,18 @@ function verif_email(email) {
   return /^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(email);
 }
 
-API_KEY = '1589d9be7d674114918d94f5f5fff38d'; // Abstract API key
+const MAILBOX_KEY = 'a40b2b890e921e48e01686034fc30d19'
 
 async function checkEmailExistence(email) {
-  const url = `https://emailvalidation.abstractapi.com/v1/?api_key=${API_KEY}&email=${email}`;
+  const url = `http://apilayer.net/api/check?access_key=${MAILBOX_KEY}&email=${encodeURIComponent(email)}`;
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    return data.deliverability === "DELIVERABLE";
+    const { data } = await axios.get(url);
+    return data.format_valid && data.smtp_check; // Vérifie format + SMTP
   } catch (error) {
-    console.error('Erreur API :', error);
+    console.error('Erreur API MailboxLayer :', error.message);
     return false;
   }
 }
-
 // ---------------------- ROUTES ----------------------
 app.get('/', (req, res) => res.render('index'));
 
