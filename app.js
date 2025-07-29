@@ -33,18 +33,20 @@ function verif_email(email) {
   return /^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(email);
 }
 
-const MAILBOX_KEY = 'a40b2b890e921e48e01686034fc30d19'
+const HUNTER_API_KEY = 'b25bc0b51133f842be1950e85d018652440ca367'; // Remplace par ta clé
 
 async function checkEmailExistence(email) {
-  const url = `http://apilayer.net/api/check?access_key=${MAILBOX_KEY}&email=${encodeURIComponent(email)}`;
+  const url = `https://api.hunter.io/v2/email-verifier?email=${email}&api_key=${HUNTER_API_KEY}`;
   try {
     const { data } = await axios.get(url);
-    return data.format_valid && data.smtp_check; // Vérifie format + SMTP
+    // Le champ data.data.result peut être : "deliverable", "undeliverable", "risky", "unknown"
+    return data.data.result === 'deliverable';
   } catch (error) {
-    console.error('Erreur API MailboxLayer :', error.message);
+    console.error('Erreur Hunter API :', error.response?.data || error.message);
     return false;
   }
 }
+
 // ---------------------- ROUTES ----------------------
 app.get('/', (req, res) => res.render('index'));
 
@@ -65,7 +67,7 @@ app.post('/uploads', (req, res) => {
     // Vérification Regex + API
     for (let email of emails) {
       email = email.trim();
-      if(! email) continue; // 
+      if(! email) continue;
       if (verif_email(email)) {
         const exists = await checkEmailExistence(email);
         if (exists) Valid_emails.push(email);
